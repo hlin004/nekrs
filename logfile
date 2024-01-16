@@ -1,0 +1,519 @@
+[LOG_CAT_ML] You must specify a valid HCA device by setting:
+-x HCOLL_MAIN_IB=<dev_name:port> or -x UCX_NET_DEVICES=<dev_name:port>.
+If no device was specified for HCOLL (or the calling library), automatic device detection will be run.
+In case of unfounded HCA device please contact your system administrator.
+[LOG_CAT_ML] You must specify a valid HCA device by setting:
+-x HCOLL_MAIN_IB=<dev_name:port> or -x UCX_NET_DEVICES=<dev_name:port>.
+If no device was specified for HCOLL (or the calling library), automatic device detection will be run.
+In case of unfounded HCA device please contact your system administrator.
+[LOG_CAT_ML] You must specify a valid HCA device by setting:
+-x HCOLL_MAIN_IB=<dev_name:port> or -x UCX_NET_DEVICES=<dev_name:port>.
+If no device was specified for HCOLL (or the calling library), automatic device detection will be run.
+In case of unfounded HCA device please contact your system administrator.
+[LOG_CAT_ML] You must specify a valid HCA device by setting:
+-x HCOLL_MAIN_IB=<dev_name:port> or -x UCX_NET_DEVICES=<dev_name:port>.
+If no device was specified for HCOLL (or the calling library), automatic device detection will be run.
+In case of unfounded HCA device please contact your system administrator.
+[HAILU-9530-Ubuntu:04509] Error: ../../../../../ompi/mca/coll/hcoll/coll_hcoll_module.c:310 - mca_coll_hcoll_comm_query() Hcol library init failed
+[HAILU-9530-Ubuntu:04511] Error: ../../../../../ompi/mca/coll/hcoll/coll_hcoll_module.c:310 - mca_coll_hcoll_comm_query() Hcol library init failed
+[HAILU-9530-Ubuntu:04510] Error: ../../../../../ompi/mca/coll/hcoll/coll_hcoll_module.c:310 - mca_coll_hcoll_comm_query() Hcol library init failed
+[HAILU-9530-Ubuntu:04508] Error: ../../../../../ompi/mca/coll/hcoll/coll_hcoll_module.c:310 - mca_coll_hcoll_comm_query() Hcol library init failed
+UTC time: Tue Jan 16 16:34:26 2024
+
+                 __    ____  _____
+   ____   ___   / /__ / __ \/ ___/
+  / __ \ / _ \ / //_// /_/ /\__ \ 
+ / / / //  __// ,<  / _, _/___/ / 
+/_/ /_/ \___//_/|_|/_/ |_|/____/  v23.0.0 (4f87e0e2)
+
+COPYRIGHT (c) 2019-2023 UCHICAGO ARGONNE, LLC
+
+MPI tasks: 4
+
+reading par file ...
+Initializing device 
+active occa mode: CUDA
+
+using NEKRS_HOME: /home/hailu/.local/nekrs
+using NEKRS_CACHE_DIR: /home/hailu/.local/nekrs/run/turbPipe3/.cache
+using OCCA_CACHE_DIR: /home/hailu/.local/nekrs/run/turbPipe3/.cache/occa/
+
+skip building nekInterface (SIZE requires no update)
+loading nek ... done
+
+<<< #[OCCA]
+<<< #backend = CUDA
+<<< #deviceNumber = LOCAL-RANK
+<<< 
+<<< [GENERAL]
+<<< #verbose = true
+<<< polynomialOrder = 7
+<<< #startFrom = "restart.fld"
+<<< stopAt = endTime
+<<< endTime = 10
+<<< 
+<<< dt = 6.0e-3
+<<< #dt = targetCFL=4 + max=1e-2 + initial=6e-3
+<<< 
+<<< timeStepper = tombo2
+<<< subCyclingSteps = 2
+<<< 
+<<< writeControl = simulationTime 
+<<< writeInterval = 1
+<<< 
+<<< regularization = hpfrt + nModes=1 + scalingCoeff=10
+<<< 
+<<< [PRESSURE]
+<<< residualTol = 1e-04
+<<< #initialGuess = projectionAconj+nVector=10
+<<< 
+<<< [VELOCITY]
+<<< #solver = pfcg+block
+<<< boundaryTypeMap = inlet, outlet, wall
+<<< density = 1.0
+<<< viscosity = 1/19000
+<<< residualTol = 1e-06
+<<< 
+<<< [SCALAR00]
+<<< rho = 1.0
+<<< diffusivity = 1/19000
+<<< boundaryTypeMap = codedFixedValue, zeroFlux, codedFixedValue
+<<< residualTol = 1e-06
+<<< regularization = avm+highestModalDecay  
+<<< 
+<<< [CASEDATA]
+<<< #/* diameters  */
+<<< ZLENGTH = 20.0
+<<< NSLABS  = 60
+<<< NELSLAB = 108
+<<< 
+
+
+<<< //
+<<< // nekRS User Defined File
+<<< //
+<<< #include "udf.hpp"
+<<< #include "plugins/velRecycling.hpp"
+<<< #include "plugins/tavg.hpp"
+<<< 
+<<< static dfloat ZLENGTH;
+<<< static int NSLABS;
+<<< static int NELSLAB;
+<<< 
+<<< 
+<<< void UDF_Setup(nrs_t *nrs)
+<<< {
+<<<   // setup scratch space
+<<<   platform_t *platform = platform_t::getInstance();
+<<<   nrs->o_usrwrk = platform->device.malloc(nrs->NVfields * nrs->fieldOffset, sizeof(dfloat));
+<<< 
+<<<   // recycling
+<<<   const dfloat wbar = 1.0;
+<<<   const int bID = 1;
+<<<   dfloat zRecycLayer = 0.25 * ZLENGTH;
+<<<   const hlong offset = NELSLAB * round(NSLABS * zRecycLayer / ZLENGTH);
+<<<   velRecycling::setup(nrs, nrs->o_usrwrk, offset, bID, wbar);
+<<< 
+<<<   tavg::setup(nrs);
+<<< }
+<<< 
+<<< void UDF_Setup0(MPI_Comm comm, setupAide &options)
+<<< {
+<<<   platform->par->extract("casedata", "zlength", ZLENGTH);
+<<<   platform->par->extract("casedata", "nslabs", NSLABS);
+<<<   platform->par->extract("casedata", "nelslab", NELSLAB);
+<<<   if (platform->options.compareArgs("BUILD ONLY", "FALSE")) {
+<<<     double *const nek_cb_scnrs = (double *)nek::ptr("cb_scnrs");
+<<<     nek_cb_scnrs[0] = ZLENGTH;
+<<<     nek_cb_scnrs[1] = NSLABS;
+<<<     nek_cb_scnrs[2] = NELSLAB;
+<<<   }
+<<< }
+<<< 
+<<< void UDF_ExecuteStep(nrs_t *nrs, dfloat time, int tstep)
+<<< {
+<<<   mesh_t *mesh = nrs->meshV;
+<<< 
+<<<   velRecycling::copy();
+<<<   tavg::run(time);
+<<< 
+<<<   if (nrs->isOutputStep) {
+<<<     occa::memory o_UZ = nrs->o_U + 2 * nrs->fieldOffset * sizeof(dfloat);
+<<<     const dfloat ubar =
+<<<         platform->linAlg->innerProd(mesh->Nlocal, o_UZ, mesh->o_LMM, platform->comm.mpiComm) / mesh->volume;
+<<<     if (platform->comm.mpiRank == 0) {
+<<<       printf(" uBulk: %g\n", ubar);
+<<<     }
+<<< 
+<<<     tavg::outfld();
+<<<   }
+<<< }
+<<< 
+
+<<< #ifdef __okl__
+<<< 
+<<< #include "turbPipe.oudf"
+<<< 
+<<< #endif
+<<< #ifdef __okl__
+<<< void meshVelocityDirichletConditions(bcData *bc){}
+<<< void velocityNeumannConditions(bcData *bc){}
+<<< void scalarNeumannConditions(bcData *bc){}
+<<< #endif
+<<< 
+
+loading udf kernels ... 
+done (0.00918799s)
+benchmarking hot kernels ...
+advSub: N=7 cubN=10 Nfields=3 wordSize=64 GDOF/s=0.0703707 GB/s=6.33002 GFLOPS/s=39.1454 kernelVer=8
+advSub: N=7 cubN=10 Nfields=1 wordSize=64 GDOF/s=0.0615226 GB/s=6.02402 GFLOPS/s=36.1333 kernelVer=8
+Ax: N=7 wordSize=64 GDOF/s=0.212736 GB/s=27.9447 GFLOPS/s=37.1537 constCoeff=0 poisson=0 kernelVer=7
+Ax: N=7 wordSize=64 GDOF/s=0.243781 GB/s=23.2893 GFLOPS/s=40.7562 constCoeff=1 poisson=1 kernelVer=7
+Ax: N=7 wordSize=32 GDOF/s=2.27123 GB/s=108.489 GFLOPS/s=379.712 constCoeff=1 poisson=1 kernelVer=7
+fdm: N=9 wordSize=32 GDOF/s=2.55645 GB/s=46.2896 GFLOPS/s=424.321 kernelVer=4
+Ax: N=3 wordSize=32 GDOF/s=1.24302 GB/s=94.2852 GFLOPS/s=188.57 constCoeff=1 poisson=1 kernelVer=2
+fdm: N=5 wordSize=32 GDOF/s=2.21923 GB/s=53.6877 GFLOPS/s=279.943 kernelVer=1
+Ax: Ndim=3 N=7 wordSize=64 GDOF/s=0.24149 GB/s=14.419 GFLOPS/s=42.1756 constCoeff=0 poisson=0 kernelVer=1
+JIT compiling kernels (this may take awhile if they are not in cache) ...
+done (41.3257s)
+
+initializing linAlg ...
+wdotp: 8.111e-04s  (local: 8.251e-04s)
+
+ reading turbPipe.re2                                                                                                                        
+ hdr:#v002     6480  3     6480 hdr                                                  
+ reading mesh 
+   readp_re2_mesh:pack/cr/unpack : 0.55E-03 0.14E-03 0.85E-04
+   readp_re2_mesh:byte_read_mpi  : 0.69E-01
+ reading boundary faces                 1656 for ifield   1
+   readp_re2_bc:pack/cr/unpack : 0.28E-03 0.16E-04 0.33E-04
+   readp_re2_bc:byte_read_mpi  : 0.14E-01
+ done :: read .re2 file    0.93E-01 sec
+
+parCon (tol = 2.000000e-01) finished in 0.0188425 s
+parRSB finished in 0.0077173 seconds.
+
+ reading mesh 
+   readp_re2_mesh:pack/cr/unpack : 0.42E-03 0.11E-03 0.19E-02
+   readp_re2_mesh:byte_read_mpi  : 0.66E-01
+ reading curved sides                  51840
+   readp_re2_curve:pack/cr/unpack : 0.31E-03 0.54E-03 0.11E-02
+   readp_re2_curve:byte_read_mpi  : 0.15E-01
+ reading boundary faces                 1656 for ifield   1
+   readp_re2_bc:pack/cr/unpack : 0.16E-03 0.28E-04 0.28E-04
+   readp_re2_bc:byte_read_mpi  : 0.13E-01
+ done :: read .re2 file    0.11     sec
+
+ setup mesh topology
+   Right-handed check complete for        6480 elements. OK.
+gs_setup: 16131 unique labels shared
+   pairwise times (avg, min, max): 5.9871e-06 5.7872e-06 6.0796e-06
+   crystal router                : 1.8462e-05 1.84311e-05 1.84949e-05
+   all reduce                    : 4.89302e-05 4.89038e-05 4.89444e-05
+   used all_to_all method: pairwise
+   handle bytes (avg, min, max): 5.45395e+06 5389412 5518492
+   buffer bytes (avg, min, max): 129048 86032 172064
+   setupds time 8.5810E-02 seconds   0  8      864037        6480
+ 
+ nElements   max/min/bal: 1620 1620 1.00
+ nMessages   max/min/avg: 2 1 1.50
+ msgSize     max/min/avg: 5377 5377 5377.00
+ msgSizeSum  max/min/avg: 10754 5377 8065.50
+ 
+ max multiplicity             8
+ done :: setup mesh topology
+  
+ call usrdat
+ done :: usrdat
+
+ generate geometry data
+ done :: generate geometry data
+  
+ call usrdat2
+ done :: usrdat2
+
+  4.7810E-07  4.7810E-07  3.5527E-15  1.0000E-07  1.0000E-07  3.5527E-15 xyz repair 1
+  4.7810E-07  4.7810E-07  3.5527E-15  4.7810E-07  4.7810E-07  6.4365E-15 xyz repair 2
+  1.1102E-16  1.1102E-16  3.5527E-15  1.1234E-16  1.3129E-16  3.5527E-15 xyz repair 3
+  0.0000E+00  0.0000E+00  0.0000E+00  0.0000E+00  0.0000E+00  0.0000E+00 xyz repair 4
+ regenerate geometry data            1
+ done :: regenerate geometry data            1
+  
+ regenerate geometry data            1
+ done :: regenerate geometry data            1
+  
+ verify mesh topology
+  -0.5000000000000000        0.5000000000000000       Xrange
+  -0.5000000000000000        0.5000000000000000       Yrange
+    0.000000000000000         20.00000000000000       Zrange
+ done :: verify mesh topology
+  
+ call usrdat3
+ done :: usrdat3
+
+gridpoints unique/tot:       2263717      3317760
+dofs vel/pr:                 2187780      2258340
+ nek setup done in    1.2299E+00 s
+ 
+ set initial conditions
+ nekuic (1) for ifld             1
+ nekuic (1) for ifld             2
+ call nekuic for ifld             2
+ call nekuic for vel  
+ xyz min   -0.50000     -0.50000       0.0000    
+ uvwpt min  0.64679E-13 -0.10000     -0.21000       0.0000       0.0000    
+ PS min      0.0000       0.0000       0.0000       0.0000    
+ xyz max    0.50000      0.50000       20.000    
+ uvwpt max  0.50000E-01  0.10000       1.2100       0.0000       0.0000    
+ PS max      0.0000       0.0000       0.0000       0.0000    
+ done :: set initial conditions
+  
+calling nek_userchk ...
+
+generating mesh ...
+loading mesh from nek ... Nelements: 6480, NboundaryIDs: 3, NboundaryFaces: 1656 done (0.000120082s)
+polynomial order N: 7, over-integration order cubN: 10
+meshParallelGatherScatterSetup N=7
+timing gs: 2.06e-04s 7.58e-04s 8.96e-04s 9.54e-04s 8.45e-04s [HAILU-9530-Ubuntu:4509 :0:4509]      cma_ep.c:84   process_vm_readv(pid=4510 {0x1537a3dd8408,43016}-->{0x14b59dda3600,43016}) returned -1: Bad address
+[HAILU-9530-Ubuntu:4510 :0:4510]      cma_ep.c:84   process_vm_readv(pid=4509 {0x14b59ddcdc00,43016}-->{0x1537a3dade08,43016}) returned -1: Bad address
+[HAILU-9530-Ubuntu:4511 :0:4511]      cma_ep.c:84   process_vm_readv(pid=4510 {0x1535a1da8a00,43016}-->{0x14b59ddade08,43016}) returned -1: Bad address
+[HAILU-9530-Ubuntu:4508 :0:4508]      cma_ep.c:84   process_vm_readv(pid=4509 {0x148103da8a00,43016}-->{0x1537a3da3600,43016}) returned -1: Bad address
+BFD: DWARF error: section .debug_info is larger than its filesize! (0x5d4f30 vs 0x4369b8)
+BFD: DWARF error: section .debug_info is larger than its filesize! (0x5d4f30 vs 0x4369b8)
+BFD: DWARF error: section .debug_info is larger than its filesize! (0x5d4f30 vs 0x4369b8)
+BFD: DWARF error: section .debug_info is larger than its filesize! (0x5d4f30 vs 0x4369b8)
+BFD: DWARF error: section .debug_info is larger than its filesize! (0x5d4f30 vs 0x4369b8)
+BFD: DWARF error: section .debug_info is larger than its filesize! (0x5d4f30 vs 0x4369b8)
+BFD: DWARF error: section .debug_info is larger than its filesize! (0x5d4f30 vs 0x4369b8)
+BFD: DWARF error: section .debug_info is larger than its filesize! (0x5d4f30 vs 0x4369b8)
+BFD: DWARF error: section .debug_info is larger than its filesize! (0x5d4f30 vs 0x4369b8)
+BFD: DWARF error: section .debug_info is larger than its filesize! (0x5d4f30 vs 0x4369b8)
+BFD: DWARF error: section .debug_info is larger than its filesize! (0x5d4f30 vs 0x4369b8)
+BFD: DWARF error: section .debug_info is larger than its filesize! (0x5d4f30 vs 0x4369b8)
+BFD: DWARF error: section .debug_info is larger than its filesize! (0x5d4f30 vs 0x4369b8)
+==== backtrace (tid:   4511) ====
+ 0 0x000000000000338a uct_cma_ep_tx_error()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/uct/sm/scopy/cma/cma_ep.c:81
+ 1 0x0000000000003a47 uct_cma_ep_tx()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/uct/sm/scopy/cma/cma_ep.c:113
+BFD: DWARF error: section .debug_info is larger than its filesize! (0x5d4f30 vs 0x4369b8)
+==== backtrace (tid:   4510) ====
+ 0 0x000000000000338a uct_cma_ep_tx_error()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/uct/sm/scopy/cma/cma_ep.c:81
+ 1 0x0000000000003a47 uct_cma_ep_tx()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/uct/sm/scopy/cma/cma_ep.c:113
+ 2 0x000000000001dfcc uct_scopy_ep_progress_tx()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/uct/sm/scopy/base/scopy_ep.c:151
+ 3 0x0000000000052761 ucs_arbiter_dispatch_nonempty()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/ucs/datastruct/arbiter.c:321
+ 4 0x000000000001db34 ucs_arbiter_dispatch()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/ucs/datastruct/arbiter.h:386
+ 5 0x0000000000052c9e ucs_callbackq_slow_proxy()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/ucs/datastruct/callbackq.c:404
+ 6 0x000000000004ce1a ucs_callbackq_dispatch()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/ucs/datastruct/callbackq.h:211
+ 7 0x000000000004ce1a uct_worker_progress()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/uct/api/uct.h:2777
+ 8 0x000000000004ce1a ucp_worker_progress()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/ucp/core/ucp_worker.c:2885
+ 9 0x0000000000036b3c opal_progress()  /var/jenkins/workspace/rel_nv_lib_hpcx_cuda12_x86_64/work/rebuild_ompi/ompi/build/opal/../../opal/runtime/opal_progress.c:231
+10 0x000000000004e77d sync_wait_st()  /var/jenkins/workspace/rel_nv_lib_hpcx_cuda12_x86_64/work/rebuild_ompi/ompi/build/ompi/../../opal/threads/wait_sync.h:83
+11 0x000000000004e77d ompi_request_default_wait_all()  /var/jenkins/workspace/rel_nv_lib_hpcx_cuda12_x86_64/work/rebuild_ompi/ompi/build/ompi/../../ompi/request/req_wait.c:234
+12 0x000000000007617c PMPI_Waitall()  /var/jenkins/workspace/rel_nv_lib_hpcx_cuda12_x86_64/work/rebuild_ompi/ompi/build/ompi/mpi/c/profile/pwaitall.c:80
+13 0x000000000041ef2d oogs::finish()  /home/hailu/.local/nekRS/3rd_party/gslib/ogs/src/oogs.cpp:193
+14 0x000000000041c901 oogs::setup()  /home/hailu/.local/nekRS/3rd_party/gslib/ogs/src/oogs.cpp:495
+15 0x00000000003585d8 createMesh()  /home/hailu/.local/nekRS/src/mesh/meshSetup.cpp:245
+16 0x00000000000d24da nrsSetup()  /home/hailu/.local/nekRS/src/setup/setup.cpp:236
+17 0x000000000008d06d nekrs::setup()  /home/hailu/.local/nekRS/src/lib/nekrs.cpp:193
+BFD: DWARF error: section .debug_info is larger than its filesize! (0x5d4f30 vs 0x4369b8)
+==== backtrace (tid:   4509) ====
+ 0 0x000000000000338a uct_cma_ep_tx_error()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/uct/sm/scopy/cma/cma_ep.c:81
+ 1 0x0000000000003a47 uct_cma_ep_tx()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/uct/sm/scopy/cma/cma_ep.c:113
+ 2 0x000000000001dfcc uct_scopy_ep_progress_tx()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/uct/sm/scopy/base/scopy_ep.c:151
+ 3 0x0000000000052761 ucs_arbiter_dispatch_nonempty()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/ucs/datastruct/arbiter.c:321
+ 4 0x000000000001db34 ucs_arbiter_dispatch()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/ucs/datastruct/arbiter.h:386
+ 5 0x0000000000052c9e ucs_callbackq_slow_proxy()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/ucs/datastruct/callbackq.c:404
+ 6 0x000000000004ce1a ucs_callbackq_dispatch()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/ucs/datastruct/callbackq.h:211
+ 7 0x000000000004ce1a uct_worker_progress()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/uct/api/uct.h:2777
+ 8 0x000000000004ce1a ucp_worker_progress()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/ucp/core/ucp_worker.c:2885
+ 9 0x0000000000036b3c opal_progress()  /var/jenkins/workspace/rel_nv_lib_hpcx_cuda12_x86_64/work/rebuild_ompi/ompi/build/opal/../../opal/runtime/opal_progress.c:231
+10 0x000000000004e77d sync_wait_st()  /var/jenkins/workspace/rel_nv_lib_hpcx_cuda12_x86_64/work/rebuild_ompi/ompi/build/ompi/../../opal/threads/wait_sync.h:83
+11 0x000000000004e77d ompi_request_default_wait_all()  /var/jenkins/workspace/rel_nv_lib_hpcx_cuda12_x86_64/work/rebuild_ompi/ompi/build/ompi/../../ompi/request/req_wait.c:234
+12 0x000000000007617c PMPI_Waitall()  /var/jenkins/workspace/rel_nv_lib_hpcx_cuda12_x86_64/work/rebuild_ompi/ompi/build/ompi/mpi/c/profile/pwaitall.c:80
+13 0x000000000041ef2d oogs::finish()  /home/hailu/.local/nekRS/3rd_party/gslib/ogs/src/oogs.cpp:193
+14 0x000000000041c901 oogs::setup()  /home/hailu/.local/nekRS/3rd_party/gslib/ogs/src/oogs.cpp:495
+15 0x00000000003585d8 createMesh()  /home/hailu/.local/nekRS/src/mesh/meshSetup.cpp:245
+16 0x00000000000d24da nrsSetup()  /home/hailu/.local/nekRS/src/setup/setup.cpp:236
+17 0x000000000008d06d nekrs::setup()  /home/hailu/.local/nekRS/src/lib/nekrs.cpp:193
+18 0x000000000040a396 main()  /home/hailu/.local/nekRS/src/main.cpp:459
+19 0x0000000000029d90 __libc_init_first()  ???:0
+20 0x0000000000029e40 __libc_start_main()  ???:0
+21 0x0000000000407865 _start()  ???:0
+=================================
+BFD: DWARF error: section .debug_info is larger than its filesize! (0x5d4f30 vs 0x4369b8)
+ 2 0x000000000001dfcc uct_scopy_ep_progress_tx()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/uct/sm/scopy/base/scopy_ep.c:151
+ 3 0x0000000000052761 ucs_arbiter_dispatch_nonempty()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/ucs/datastruct/arbiter.c:321
+ 4 0x000000000001db34 ucs_arbiter_dispatch()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/ucs/datastruct/arbiter.h:386
+ 5 0x0000000000052c9e ucs_callbackq_slow_proxy()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/ucs/datastruct/callbackq.c:404
+ 6 0x000000000004ce1a ucs_callbackq_dispatch()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/ucs/datastruct/callbackq.h:211
+ 7 0x000000000004ce1a uct_worker_progress()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/uct/api/uct.h:2777
+ 8 0x000000000004ce1a ucp_worker_progress()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/ucp/core/ucp_worker.c:2885
+ 9 0x0000000000036b3c opal_progress()  /var/jenkins/workspace/rel_nv_lib_hpcx_cuda12_x86_64/work/rebuild_ompi/ompi/build/opal/../../opal/runtime/opal_progress.c:231
+10 0x000000000004e77d sync_wait_st()  /var/jenkins/workspace/rel_nv_lib_hpcx_cuda12_x86_64/work/rebuild_ompi/ompi/build/ompi/../../opal/threads/wait_sync.h:83
+11 0x000000000004e77d ompi_request_default_wait_all()  /var/jenkins/workspace/rel_nv_lib_hpcx_cuda12_x86_64/work/rebuild_ompi/ompi/build/ompi/../../ompi/request/req_wait.c:234
+12 0x000000000007617c PMPI_Waitall()  /var/jenkins/workspace/rel_nv_lib_hpcx_cuda12_x86_64/work/rebuild_ompi/ompi/build/ompi/mpi/c/profile/pwaitall.c:80
+13 0x000000000041ef2d oogs::finish()  /home/hailu/.local/nekRS/3rd_party/gslib/ogs/src/oogs.cpp:193
+14 0x000000000041c901 oogs::setup()  /home/hailu/.local/nekRS/3rd_party/gslib/ogs/src/oogs.cpp:495
+15 0x00000000003585d8 createMesh()  /home/hailu/.local/nekRS/src/mesh/meshSetup.cpp:245
+16 0x00000000000d24da nrsSetup()  /home/hailu/.local/nekRS/src/setup/setup.cpp:236
+17 0x000000000008d06d nekrs::setup()  /home/hailu/.local/nekRS/src/lib/nekrs.cpp:193
+18 0x000000000040a396 main()  /home/hailu/.local/nekRS/src/main.cpp:459
+19 0x0000000000029d90 __libc_init_first()  ???:0
+20 0x0000000000029e40 __libc_start_main()  ???:0
+21 0x0000000000407865 _start()  ???:0
+=================================
+18 0x000000000040a396 main()  /home/hailu/.local/nekRS/src/main.cpp:459
+19 0x0000000000029d90 __libc_init_first()  ???:0
+20 0x0000000000029e40 __libc_start_main()  ???:0
+21 0x0000000000407865 _start()  ???:0
+=================================
+[HAILU-9530-Ubuntu:04510] *** Process received signal ***
+==== backtrace (tid:   4508) ====
+ 0 0x000000000000338a uct_cma_ep_tx_error()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/uct/sm/scopy/cma/cma_ep.c:81
+ 1 0x0000000000003a47 uct_cma_ep_tx()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/uct/sm/scopy/cma/cma_ep.c:113
+ 2 0x000000000001dfcc uct_scopy_ep_progress_tx()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/uct/sm/scopy/base/scopy_ep.c:151
+ 3 0x0000000000052761 ucs_arbiter_dispatch_nonempty()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/ucs/datastruct/arbiter.c:321
+ 4 0x000000000001db34 ucs_arbiter_dispatch()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/ucs/datastruct/arbiter.h:386
+ 5 0x0000000000052c9e ucs_callbackq_slow_proxy()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/ucs/datastruct/callbackq.c:404
+ 6 0x000000000004ce1a ucs_callbackq_dispatch()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/ucs/datastruct/callbackq.h:211
+ 7 0x000000000004ce1a uct_worker_progress()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/uct/api/uct.h:2777
+ 8 0x000000000004ce1a ucp_worker_progress()  /build-result/src/hpcx-v2.16-gcc-mlnx_ofed-redhat7-cuda12-gdrcopy2-nccl2.18-x86_64/ucx-bf8f1b66767231605126806d837cba26d1b12afa/src/ucp/core/ucp_worker.c:2885
+ 9 0x0000000000036b3c opal_progress()  /var/jenkins/workspace/rel_nv_lib_hpcx_cuda12_x86_64/work/rebuild_ompi/ompi/build/opal/../../opal/runtime/opal_progress.c:231
+10 0x000000000004e77d sync_wait_st()  /var/jenkins/workspace/rel_nv_lib_hpcx_cuda12_x86_64/work/rebuild_ompi/ompi/build/ompi/../../opal/threads/wait_sync.h:83
+11 0x000000000004e77d ompi_request_default_wait_all()  /var/jenkins/workspace/rel_nv_lib_hpcx_cuda12_x86_64/work/rebuild_ompi/ompi/build/ompi/../../ompi/request/req_wait.c:234
+12 0x000000000007617c PMPI_Waitall()  /var/jenkins/workspace/rel_nv_lib_hpcx_cuda12_x86_64/work/rebuild_ompi/ompi/build/ompi/mpi/c/profile/pwaitall.c:80
+13 0x000000000041ef2d oogs::finish()  /home/hailu/.local/nekRS/3rd_party/gslib/ogs/src/oogs.cpp:193
+14 0x000000000041c901 oogs::setup()  /home/hailu/.local/nekRS/3rd_party/gslib/ogs/src/oogs.cpp:495
+15 0x00000000003585d8 createMesh()  /home/hailu/.local/nekRS/src/mesh/meshSetup.cpp:245
+16 0x00000000000d24da nrsSetup()  /home/hailu/.local/nekRS/src/setup/setup.cpp:236
+17 0x000000000008d06d nekrs::setup()  /home/hailu/.local/nekRS/src/lib/nekrs.cpp:193
+18 0x000000000040a396 main()  /home/hailu/.local/nekRS/src/main.cpp:459
+19 0x0000000000029d90 __libc_init_first()  ???:0
+20 0x0000000000029e40 __libc_start_main()  ???:0
+21 0x0000000000407865 _start()  ???:0
+=================================
+[HAILU-9530-Ubuntu:04508] *** Process received signal ***
+[HAILU-9530-Ubuntu:04508] Signal: Aborted (6)
+[HAILU-9530-Ubuntu:04508] Signal code:  (-6)
+[HAILU-9530-Ubuntu:04511] *** Process received signal ***
+[HAILU-9530-Ubuntu:04511] Signal: Aborted (6)
+[HAILU-9530-Ubuntu:04511] Signal code:  (-6)
+[HAILU-9530-Ubuntu:04511] [ 0] [HAILU-9530-Ubuntu:04509] *** Process received signal ***
+[HAILU-9530-Ubuntu:04509] Signal: Aborted (6)
+[HAILU-9530-Ubuntu:04509] Signal code:  (-6)
+[HAILU-9530-Ubuntu:04509] [ 0] [HAILU-9530-Ubuntu:04510] Signal: Aborted (6)
+[HAILU-9530-Ubuntu:04510] Signal code:  (-6)
+[HAILU-9530-Ubuntu:04510] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x1537b2642520]
+[HAILU-9530-Ubuntu:04511] [ 1] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x14b7b1642520]
+[HAILU-9530-Ubuntu:04510] [ 1] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x1539b6842520]
+[HAILU-9530-Ubuntu:04509] [ 1] [HAILU-9530-Ubuntu:04508] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x148319842520]
+[HAILU-9530-Ubuntu:04508] [ 1] /lib/x86_64-linux-gnu/libc.so.6(pthread_kill+0x12c)[0x1537b26969fc]
+[HAILU-9530-Ubuntu:04511] [ 2] /lib/x86_64-linux-gnu/libc.so.6(pthread_kill+0x12c)[0x14b7b16969fc]
+[HAILU-9530-Ubuntu:04510] [ 2] /lib/x86_64-linux-gnu/libc.so.6(pthread_kill+0x12c)[0x1539b68969fc]
+[HAILU-9530-Ubuntu:04509] [ 2] /lib/x86_64-linux-gnu/libc.so.6(raise+0x16)[0x14b7b1642476]
+[HAILU-9530-Ubuntu:04510] [ 3] /lib/x86_64-linux-gnu/libc.so.6(abort+0xd3)[0x14b7b16287f3]
+[HAILU-9530-Ubuntu:04510] [ 4] /lib/x86_64-linux-gnu/libc.so.6(raise+0x16)[0x1537b2642476]
+[HAILU-9530-Ubuntu:04511] [ 3] /lib/x86_64-linux-gnu/libc.so.6(abort+0xd3)[0x1537b26287f3]
+[HAILU-9530-Ubuntu:04511] [ 4] /lib/x86_64-linux-gnu/libc.so.6(raise+0x16)[0x1539b6842476]
+[HAILU-9530-Ubuntu:04509] [ 3] /lib/x86_64-linux-gnu/libc.so.6(abort+0xd3)[0x1539b68287f3]
+[HAILU-9530-Ubuntu:04509] [ 4] /lib/x86_64-linux-gnu/libc.so.6(pthread_kill+0x12c)[0x1483198969fc]
+[HAILU-9530-Ubuntu:04508] [ 2] /lib/x86_64-linux-gnu/libc.so.6(raise+0x16)[0x148319842476]
+[HAILU-9530-Ubuntu:04508] [ 3] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libucs.so.0(ucs_fatal_error_message+0x55)[0x14b7b40d69d5]
+[HAILU-9530-Ubuntu:04510] [ 5] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libucs.so.0(ucs_log_default_handler+0x634)[0x14b7b40db2d4]
+[HAILU-9530-Ubuntu:04510] [ 6] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libucs.so.0(ucs_fatal_error_message+0x55)[0x1537b4cd69d5]
+[HAILU-9530-Ubuntu:04511] [ 5] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libucs.so.0(ucs_log_default_handler+0x634)[0x1537b4cdb2d4]
+[HAILU-9530-Ubuntu:04511] [ 6] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libucs.so.0(ucs_fatal_error_message+0x55)[0x1539b8ed69d5]
+[HAILU-9530-Ubuntu:04509] [ 5] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libucs.so.0(ucs_log_default_handler+0x634)[0x1539b8edb2d4]
+[HAILU-9530-Ubuntu:04509] [ 6] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libucs.so.0(ucs_log_dispatch+0xdf)[0x1539b8edb8df]
+[HAILU-9530-Ubuntu:04509] [ 7] /lib/x86_64-linux-gnu/libc.so.6(abort+0xd3)[0x1483198287f3]
+[HAILU-9530-Ubuntu:04508] [ 4] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libucs.so.0(ucs_log_dispatch+0xdf)[0x14b7b40db8df]
+[HAILU-9530-Ubuntu:04510] [ 7] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/ucx/libuct_cma.so.0(+0x338a)[0x14b7b538c38a]
+[HAILU-9530-Ubuntu:04510] [ 8] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/ucx/libuct_cma.so.0(uct_cma_ep_tx+0x147)[0x14b7b538ca47]
+[HAILU-9530-Ubuntu:04510] [ 9] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libucs.so.0(ucs_log_dispatch+0xdf)[0x1537b4cdb8df]
+[HAILU-9530-Ubuntu:04511] [ 7] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/ucx/libuct_cma.so.0(+0x338a)[0x1537b624038a]
+[HAILU-9530-Ubuntu:04511] [ 8] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/ucx/libuct_cma.so.0(uct_cma_ep_tx+0x147)[0x1537b6240a47]
+[HAILU-9530-Ubuntu:04511] [ 9] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libuct.so.0(uct_scopy_ep_progress_tx+0x5c)[0x1537b5b4cfcc]
+[HAILU-9530-Ubuntu:04511] [10] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/ucx/libuct_cma.so.0(+0x338a)[0x1539ba4a838a]
+[HAILU-9530-Ubuntu:04509] [ 8] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/ucx/libuct_cma.so.0(uct_cma_ep_tx+0x147)[0x1539ba4a8a47]
+[HAILU-9530-Ubuntu:04509] [ 9] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libuct.so.0(uct_scopy_ep_progress_tx+0x5c)[0x1539b973bfcc]
+[HAILU-9530-Ubuntu:04509] [10] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libucs.so.0(ucs_fatal_error_message+0x55)[0x14831bed69d5]
+[HAILU-9530-Ubuntu:04508] [ 5] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libucs.so.0(ucs_log_default_handler+0x634)[0x14831bedb2d4]
+[HAILU-9530-Ubuntu:04508] [ 6] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libucs.so.0(ucs_log_dispatch+0xdf)[0x14831bedb8df]
+[HAILU-9530-Ubuntu:04508] [ 7] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/ucx/libuct_cma.so.0(+0x338a)[0x14831d51438a]
+[HAILU-9530-Ubuntu:04508] [ 8] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/ucx/libuct_cma.so.0(uct_cma_ep_tx+0x147)[0x14831d514a47]
+[HAILU-9530-Ubuntu:04508] [ 9] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libuct.so.0(uct_scopy_ep_progress_tx+0x5c)[0x14831d459fcc]
+[HAILU-9530-Ubuntu:04508] [10] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libuct.so.0(uct_scopy_ep_progress_tx+0x5c)[0x14b7b4b2ffcc]
+[HAILU-9530-Ubuntu:04510] [10] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libucs.so.0(ucs_arbiter_dispatch_nonempty+0x91)[0x14b7b40cd761]
+[HAILU-9530-Ubuntu:04510] [11] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libuct.so.0(uct_scopy_iface_progress+0x54)[0x14b7b4b2fb34]
+[HAILU-9530-Ubuntu:04510] [12] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libucs.so.0(+0x52c9e)[0x14b7b40cdc9e]
+[HAILU-9530-Ubuntu:04510] [13] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libucs.so.0(ucs_arbiter_dispatch_nonempty+0x91)[0x1537b4ccd761]
+[HAILU-9530-Ubuntu:04511] [11] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libuct.so.0(uct_scopy_iface_progress+0x54)[0x1537b5b4cb34]
+[HAILU-9530-Ubuntu:04511] [12] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libucs.so.0(+0x52c9e)[0x1537b4ccdc9e]
+[HAILU-9530-Ubuntu:04511] [13] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libucs.so.0(ucs_arbiter_dispatch_nonempty+0x91)[0x1539b8ecd761]
+[HAILU-9530-Ubuntu:04509] [11] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libuct.so.0(uct_scopy_iface_progress+0x54)[0x1539b973bb34]
+[HAILU-9530-Ubuntu:04509] [12] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libucs.so.0(+0x52c9e)[0x1539b8ecdc9e]
+[HAILU-9530-Ubuntu:04509] [13] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libucp.so.0(ucp_worker_progress+0x6a)[0x1539b937ee1a]
+[HAILU-9530-Ubuntu:04509] [14] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libucp.so.0(ucp_worker_progress+0x6a)[0x14b7b457ee1a]
+[HAILU-9530-Ubuntu:04510] [14] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ompi/lib/libopen-pal.so.40(opal_progress+0x2c)[0x14b7ad836b3c]
+[HAILU-9530-Ubuntu:04510] [15] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libucs.so.0(ucs_arbiter_dispatch_nonempty+0x91)[0x14831becd761]
+[HAILU-9530-Ubuntu:04508] [11] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libuct.so.0(uct_scopy_iface_progress+0x54)[0x14831d459b34]
+[HAILU-9530-Ubuntu:04508] [12] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libucs.so.0(+0x52c9e)[0x14831becdc9e]
+[HAILU-9530-Ubuntu:04508] [13] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libucp.so.0(ucp_worker_progress+0x6a)[0x1537b50fbe1a]
+[HAILU-9530-Ubuntu:04511] [14] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ompi/lib/libopen-pal.so.40(opal_progress+0x2c)[0x1537ae836b3c]
+[HAILU-9530-Ubuntu:04511] [15] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ompi/lib/libopen-pal.so.40(opal_progress+0x2c)[0x1539b2a36b3c]
+[HAILU-9530-Ubuntu:04509] [15] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ucx/mt/lib/libucp.so.0(ucp_worker_progress+0x6a)[0x14831c37ee1a]
+[HAILU-9530-Ubuntu:04508] [14] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ompi/lib/libmpi.so.40(ompi_request_default_wait_all+0xed)[0x14b7b424e77d]
+[HAILU-9530-Ubuntu:04510] [16] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ompi/lib/libmpi.so.40(ompi_request_default_wait_all+0xed)[0x1537b524e77d]
+[HAILU-9530-Ubuntu:04511] [16] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ompi/lib/libmpi.so.40(ompi_request_default_wait_all+0xed)[0x1539b944e77d]
+[HAILU-9530-Ubuntu:04509] [16] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ompi/lib/libopen-pal.so.40(opal_progress+0x2c)[0x148315a36b3c]
+[HAILU-9530-Ubuntu:04508] [15] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ompi/lib/libmpi.so.40(ompi_request_default_wait_all+0xed)[0x14831c44e77d]
+[HAILU-9530-Ubuntu:04508] [16] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ompi/lib/libmpi.so.40(PMPI_Waitall+0x1c)[0x1537b527617c]
+[HAILU-9530-Ubuntu:04511] [17] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ompi/lib/libmpi.so.40(PMPI_Waitall+0x1c)[0x14b7b427617c]
+[HAILU-9530-Ubuntu:04510] [17] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ompi/lib/libmpi.so.40(PMPI_Waitall+0x1c)[0x1539b947617c]
+[HAILU-9530-Ubuntu:04509] [17] /opt/nvidia/hpc_sdk/Linux_x86_64/23.11/comm_libs/12.3/hpcx/hpcx-2.16/ompi/lib/libmpi.so.40(PMPI_Waitall+0x1c)[0x14831c47617c]
+[HAILU-9530-Ubuntu:04508] [17] /home/hailu/.local/nekrs/lib/libnekrs.so(_ZN4oogs6finishERN4occa6memoryEiiPKcS4_P6oogs_t+0x9ad)[0x14b7b501ef2d]
+[HAILU-9530-Ubuntu:04510] [18] /home/hailu/.local/nekrs/lib/libnekrs.so(_ZN4oogs6finishERN4occa6memoryEiiPKcS4_P6oogs_t+0x9ad)[0x1537b601ef2d]
+[HAILU-9530-Ubuntu:04511] [18] /home/hailu/.local/nekrs/lib/libnekrs.so(_ZN4oogs6finishERN4occa6memoryEiiPKcS4_P6oogs_t+0x9ad)[0x1539ba21ef2d]
+[HAILU-9530-Ubuntu:04509] [18] /home/hailu/.local/nekrs/lib/libnekrs.so(_ZN4oogs6finishERN4occa6memoryEiiPKcS4_P6oogs_t+0x9ad)[0x14831d21ef2d]
+[HAILU-9530-Ubuntu:04508] [18] /home/hailu/.local/nekrs/lib/libnekrs.so(_ZN4oogs5setupEP5ogs_tiiPKcSt8functionIFvvEE9oogs_mode+0xfc1)[0x1539ba21c901]
+[HAILU-9530-Ubuntu:04509] [19] /home/hailu/.local/nekrs/lib/libnekrs.so(_ZN4oogs5setupEP5ogs_tiiPKcSt8functionIFvvEE9oogs_mode+0xfc1)[0x14b7b501c901]
+[HAILU-9530-Ubuntu:04510] [19] /home/hailu/.local/nekrs/lib/libnekrs.so(_ZN4oogs5setupEP5ogs_tiiPKcSt8functionIFvvEE9oogs_mode+0xfc1)[0x1537b601c901]
+[HAILU-9530-Ubuntu:04511] [19] /home/hailu/.local/nekrs/lib/libnekrs.so(_ZN4oogs5setupEP5ogs_tiiPKcSt8functionIFvvEE9oogs_mode+0xfc1)[0x14831d21c901]
+[HAILU-9530-Ubuntu:04508] [19] /home/hailu/.local/nekrs/lib/libnekrs.so(_Z10createMeshP19ompi_communicator_tiibRN4occa4jsonE+0x1058)[0x1539ba1585d8]
+[HAILU-9530-Ubuntu:04509] [20] /home/hailu/.local/nekrs/lib/libnekrs.so(_Z10createMeshP19ompi_communicator_tiibRN4occa4jsonE+0x1058)[0x14b7b4f585d8]
+[HAILU-9530-Ubuntu:04510] [20] /home/hailu/.local/nekrs/lib/libnekrs.so(_Z10createMeshP19ompi_communicator_tiibRN4occa4jsonE+0x1058)[0x1537b5f585d8]
+[HAILU-9530-Ubuntu:04511] [20] /home/hailu/.local/nekrs/lib/libnekrs.so(_Z10createMeshP19ompi_communicator_tiibRN4occa4jsonE+0x1058)[0x14831d1585d8]
+[HAILU-9530-Ubuntu:04508] [20] /home/hailu/.local/nekrs/lib/libnekrs.so(_Z8nrsSetupP19ompi_communicator_tR9setupAideP5nrs_t+0x139a)[0x14b7b4cd24da]
+[HAILU-9530-Ubuntu:04510] [21] /home/hailu/.local/nekrs/lib/libnekrs.so(_Z8nrsSetupP19ompi_communicator_tR9setupAideP5nrs_t+0x139a)[0x1537b5cd24da]
+[HAILU-9530-Ubuntu:04511] [21] /home/hailu/.local/nekrs/lib/libnekrs.so(_Z8nrsSetupP19ompi_communicator_tR9setupAideP5nrs_t+0x139a)[0x1539b9ed24da]
+[HAILU-9530-Ubuntu:04509] [21] /home/hailu/.local/nekrs/lib/libnekrs.so(_Z8nrsSetupP19ompi_communicator_tR9setupAideP5nrs_t+0x139a)[0x14831ced24da]
+[HAILU-9530-Ubuntu:04508] [21] /home/hailu/.local/nekrs/lib/libnekrs.so(_ZN5nekrs5setupEP19ompi_communicator_tS1_iiiNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES7_S7_iii+0x1a6d)[0x14b7b4c8d06d]
+[HAILU-9530-Ubuntu:04510] [22] /home/hailu/.local/nekrs/bin/nekrs(main+0x29d6)[0x40a396]
+[HAILU-9530-Ubuntu:04510] [23] /home/hailu/.local/nekrs/lib/libnekrs.so(_ZN5nekrs5setupEP19ompi_communicator_tS1_iiiNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES7_S7_iii+0x1a6d)[0x1537b5c8d06d]
+[HAILU-9530-Ubuntu:04511] [22] /home/hailu/.local/nekrs/bin/nekrs(main+0x29d6)[0x40a396]
+[HAILU-9530-Ubuntu:04511] [23] /home/hailu/.local/nekrs/lib/libnekrs.so(_ZN5nekrs5setupEP19ompi_communicator_tS1_iiiNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES7_S7_iii+0x1a6d)[0x1539b9e8d06d]
+[HAILU-9530-Ubuntu:04509] [22] /home/hailu/.local/nekrs/bin/nekrs(main+0x29d6)[0x40a396]
+[HAILU-9530-Ubuntu:04509] [23] /home/hailu/.local/nekrs/lib/libnekrs.so(_ZN5nekrs5setupEP19ompi_communicator_tS1_iiiNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES7_S7_iii+0x1a6d)[0x14831ce8d06d]
+[HAILU-9530-Ubuntu:04508] [22] /home/hailu/.local/nekrs/bin/nekrs(main+0x29d6)[0x40a396]
+[HAILU-9530-Ubuntu:04508] [23] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x14b7b1629d90]
+[HAILU-9530-Ubuntu:04510] [24] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x1537b2629d90]
+[HAILU-9530-Ubuntu:04511] [24] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x1539b6829d90]
+[HAILU-9530-Ubuntu:04509] [24] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x148319829d90]
+[HAILU-9530-Ubuntu:04508] [24] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x14b7b1629e40]
+[HAILU-9530-Ubuntu:04510] [25] /home/hailu/.local/nekrs/bin/nekrs(_start+0x25)[0x407865]
+[HAILU-9530-Ubuntu:04510] *** End of error message ***
+/lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x1537b2629e40]
+[HAILU-9530-Ubuntu:04511] [25] /home/hailu/.local/nekrs/bin/nekrs(_start+0x25)[0x407865]
+[HAILU-9530-Ubuntu:04511] *** End of error message ***
+/lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x1539b6829e40]
+[HAILU-9530-Ubuntu:04509] [25] /home/hailu/.local/nekrs/bin/nekrs(_start+0x25)[0x407865]
+[HAILU-9530-Ubuntu:04509] *** End of error message ***
+/lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x148319829e40]
+[HAILU-9530-Ubuntu:04508] [25] /home/hailu/.local/nekrs/bin/nekrs(_start+0x25)[0x407865]
+[HAILU-9530-Ubuntu:04508] *** End of error message ***
+--------------------------------------------------------------------------
+Primary job  terminated normally, but 1 process returned
+a non-zero exit code. Per user-direction, the job has been aborted.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+mpirun noticed that process rank 0 with PID 0 on node HAILU-9530-Ubuntu exited on signal 6 (Aborted).
+--------------------------------------------------------------------------
